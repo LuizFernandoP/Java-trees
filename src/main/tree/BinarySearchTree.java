@@ -6,74 +6,86 @@ import estrut.Tree;
 public class BinarySearchTree implements Tree{
 
     private class Node {
-        int value;
+        int valor;
         Node left, right;
+        int altura; //balanceamento da AVL
 
-        public Node(int value) {
-            this.value = value;
-            this.left = null;
-            this.right = null;
+        Node(int valor) {
+            this.valor = valor;
+            altura = 1;
         }
     }
 
     private Node root;
 
     @Override
-    public boolean buscaElemento(int x) {
-        return auxBuscaElemento(root, x);
+    public boolean buscaElemento(int valor) {
+        return buscaRecursiva(root, valor);
     }
 
-    public boolean auxBuscaElemento(Node root, int x){
-        if (root == null) return false;
-
-        if (root.value == x) return true;
-
-        if (x < root.value) {
-            return auxBuscaElemento(root.left, x);
+    private boolean buscaRecursiva(Node node, int valor) {
+        if (node == null) {
+            return false; 
         }
-
-        return auxBuscaElemento(root.right, x);
+        if (valor == node.valor) {
+            return true; // Valor encontrado
+        } else if (valor < node.valor) {
+            return buscaRecursiva(node.left, valor); // Buscar na subárvore esquerda
+        } else {
+            return buscaRecursiva(node.right, valor); // Buscar na subárvore direita
+        }
     }
 
     @Override
     public int minimo() {
-        return auxMaximo(root);
+        if (root == null) {
+            throw new IllegalStateException("Árvore está vazia");
+        }
+        return encontrarMinimo(root).valor;
     }
 
-    public int auxMinimo(Node root) {
-        if (root.left == null) return root;
-        return auxMinimo(root.left);
+    private Node encontrarMinimo(Node node) {
+        if (node.left == null) {
+            return node; // Nó mais à esquerda encontrado
+        }
+        return encontrarMinimo(node.left); // Continuar buscando na subárvore esquerda
     }
 
     @Override
     public int maximo() {
-        return auxMaximo(root);
-    }
-
-    public int auxMaximo(Node root) {
-        if (root.right == null) return root;
-        return auxMaximo(root.right);
+        return 0;
     }
 
     @Override
     public void insereElemento(int valor) {
-        root = auxInserir(root, valor);
+        root = inserirRec(root, valor);
     }
 
-    public auxInserir(Node root, int valor) {
-        if (root == null) {
+    private Node inserirRec(Node node, int valor){
+        if (node == null) {
             return new Node(valor);
         }
-    
-        if (valor < root.value) {
-            root.left = auxInserir(root.left, valor);
-        } else if (valor > root.value) {
-            root.right = auxInserir(root.right, valor);
+
+        if(valor < node.valor) {
+            node.left = inserirRec(node.left, valor);
+        } else if (valor > node.valor) {
+            node.right = inserirRec(node.right, valor);
+        } else {
+            return node;
         }
-        
-        return root;
+
+        node.altura = 1 + Math.max(getAltura(node.left), getAltura(node.right));
+
+        return node;
     }
 
+    private int getAltura(Node node) {
+        if (node == null) {
+            return 0;
+        }
+        return node.altura;
+    }
+    
     @Override
     public void remove(int valor) {
         return;
